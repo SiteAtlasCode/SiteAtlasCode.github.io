@@ -857,4 +857,4 @@ if(document.readyState==="loading"){
 }
 })();
 
-window.__ATLAS_CORE_LOADED__ = true;
+window.ATLAS_CORE_LOADED = true;
