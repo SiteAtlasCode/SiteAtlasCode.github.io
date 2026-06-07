@@ -59,7 +59,11 @@ form-action 'self';
 upgrade-insecure-requests;
 ">
 
-  <link rel="stylesheet" href="style.css">
+<link rel="preload" href="./style.css" as="style">
+<link rel="stylesheet" href="./style.css" id="atlas-style">
+
+<script src="https://siteatlascode.github.io/config.js" defer></script>
+<script src="https://siteatlascode.github.io/index.js" data-role="head" defer></script>
 
 </head>
 
@@ -144,5 +148,7 @@ upgrade-insecure-requests;
 <script src="https://siteatlascode.github.io/index.js"></script>
 
 <script src="https://siteatlascode.github.io/tools.js"></script>
+
+<script src="https://siteatlascode.github.io/index.js" data-role="body"></script>
 </body>
   </html>
