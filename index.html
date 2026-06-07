@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>SZN-ALS | سامانه ثبت گزارش، آرشیو امنیتی، بررسی تخلفات و مستندسازی داخلی</title>
+
+<meta
+name="description"
+content="SZN-ALS by Atlas Code — سامانه ثبت گزارش، آرشیو پرونده‌ها، بررسی تخلفات، مستندسازی داخلی، پیگیری امنیت و مدیریت رخدادها">
+<meta name="keywords" content="SZN-ALS,SZN ALS,سامانه ثبت گزارش,سامانه تخلفات,آرشیو داخلی,ثبت تخلف,پرونده امنیتی,سیستم امنیتی,ثبت رخداد,پیگیری تخلف,مدیریت امنیت,آرشیو قانونی,بررسی داخلی,مستندسازی,گزارش امنیتی,پرونده مدیریتی,archive,security,incident-reporting,documentation,legal-system,internal-management,github-pages,atlas-code,szn-als">
+<meta name="author" content="SZN-ALS">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="googlebot" content="index,follow">
+<meta name="bingbot" content="index,follow">
+<meta name="language" content="fa">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+
+<meta
+name="referrer"
+content="strict-origin-when-cross-origin">
+
+<meta
+http-equiv="X-Content-Type-Options"
+content="nosniff">
+
+<link rel="canonical" href="https://AtlasCodeALS.github.io/">
+<meta property="og:url" content="https://AtlasCodeALS.github.io/">
+
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="24" fill="%23c40000"/>
+<path d="M32 38h64v10H32zm0 22h64v10H32zm0 22h44v10H32z" fill="white"/>
+</svg>'>
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="SZN-ALS">
+<meta property="og:description" content="سامانه رسمی ثبت گزارش و آرشیو امنیتی">
+<meta property="og:site_name" content="SZN-ALS">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SZN-ALS">
+<meta name="twitter:description" content="سامانه ثبت و بررسی داخلی">
+
+<script type="application/ld+json">
+{
+"@context":"https://schema.org",
+"@type":"WebSite",
+"name":"SZN-ALS",
+"url":"/",
+"inLanguage":"fa",
+"description":"سامانه ثبت گزارش، آرشیو و بررسی داخلی"
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+:root{
+
+--bg:#f6f8fb;
+--bg2:#eef2f7;
+--card:rgba(255,255,255,.82);
+--card-solid:#ffffff;
+
+--line:rgba(15,23,42,.08);
+--line-strong:rgba(15,23,42,.16);
+
+--red:#d30000;
+--red2:#8d0d0d;
+--redGlow:rgba(211,0,0,.18);
+
+--text:#0f172a;
+--muted:#5e6472;
+
+--header:rgba(255,255,255,.72);
+
+--shadow:
+0 8px 30px rgba(15,23,42,.06),
+0 2px 8px rgba(15,23,42,.04);
+
+--shadowHover:
+0 18px 40px rgba(15,23,42,.12),
+0 8px 20px rgba(15,23,42,.08);
+
+}
+
+body.dark{
+
+--bg:#06080d;
+--bg2:#0b1018;
+
+--card:rgba(13,18,27,.78);
+--card-solid:#0d121b;
+
+--line:rgba(255,255,255,.06);
+--line-strong:rgba(255,255,255,.12);
+
+--red:#ff2b2b;
+--red2:#8f1111;
+--redGlow:rgba(255,43,43,.18);
+
+--text:#f8fafc;
+--muted:#9aa4b2;
+
+--header:rgba(8,12,18,.72);
+
+--shadow:
+0 10px 40px rgba(0,0,0,.45);
+
+--shadowHover:
+0 22px 48px rgba(0,0,0,.65);
+
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Tahoma,sans-serif;
+-webkit-tap-highlight-color:transparent;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+
+background:
+radial-gradient(circle at top right,var(--redGlow),transparent 26%),
+linear-gradient(180deg,var(--bg),var(--bg2));
+
+color:var(--text);
+
+overflow-x:hidden;
+min-height:100vh;
+
+transition:
+background .35s ease,
+color .25s ease;
+
+}
+
+header{
+
+position:sticky;
+top:0;
+z-index:999;
+
+background:var(--header);
+
+backdrop-filter:blur(22px);
+-webkit-backdrop-filter:blur(22px);
+
+border-bottom:1px solid var(--line);
+
+padding:18px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+box-shadow:
+0 6px 18px rgba(0,0,0,.04);
+
+}
+
+.logo{
+
+font-size:clamp(26px,6vw,42px);
+
+font-weight:900;
+
+letter-spacing:5px;
+
+color:var(--red);
+
+text-shadow:
+0 0 18px var(--redGlow);
+
+}
+
+.sub{
+
+margin-top:6px;
+
+font-size:13px;
+
+color:var(--muted);
+
+letter-spacing:.8px;
+
+}
+
+.themeBtn{
+
+display:flex;
+align-items:center;
+gap:10px;
+
+border:none;
+
+padding:12px 16px;
+
+border-radius:16px;
+
+cursor:pointer;
+
+font-size:14px;
+font-weight:800;
+
+background:var(--card);
+
+color:var(--text);
+
+border:1px solid var(--line);
+
+box-shadow:var(--shadow);
+
+transition:.25s ease;
+
+}
+
+.themeBtn:hover{
+
+transform:translateY(-2px);
+
+border-color:var(--red);
+
+box-shadow:
+0 0 0 1px var(--redGlow),
+var(--shadowHover);
+
+}
+
+.wrap{
+
+max-width:1300px;
+
+margin:auto;
+
+padding:18px;
+
+}
+
+.controls{
+
+display:grid;
+
+grid-template-columns:1fr 200px;
+
+gap:14px;
+
+margin:22px 0;
+
+}
+
+@media(max-width:700px){
+
+.controls{
+grid-template-columns:1fr;
+}
+
+}
+
+input,
+select{
+
+width:100%;
+
+background:var(--card);
+
+border:1px solid var(--line);
+
+color:var(--text);
+
+padding:15px 18px;
+
+border-radius:18px;
+
+font-size:15px;
+
+outline:none;
+
+box-shadow:var(--shadow);
+
+transition:.25s ease;
+
+}
+
+input:focus,
+select:focus{
+
+border-color:var(--red);
+
+box-shadow:
+0 0 0 4px var(--redGlow),
+var(--shadow);
+
+}
+
+.grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+
+gap:20px;
+
+align-items:start;
+
+}
+
+.card{
+
+position:relative;
+
+background:var(--card);
+
+border:1px solid var(--line);
+
+border-radius:24px;
+
+padding:22px;
+
+cursor:pointer;
+
+overflow:hidden;
+
+box-shadow:var(--shadow);
+
+transition:
+transform .22s ease,
+box-shadow .22s ease,
+border-color .22s ease;
+
+contain:layout paint;
+
+will-change:transform;
+
+backface-visibility:hidden;
+
+transform:translateZ(0);
+
+}
+
+.card::before{
+
+content:"";
+
+position:absolute;
+
+top:0;
+right:0;
+
+width:100%;
+height:2px;
+
+background:
+linear-gradient(
+90deg,
+transparent,
+var(--red),
+transparent
+);
+
+opacity:.75;
+
+}
+
+.card:hover{
+
+transform:
+translateY(-6px);
+
+border-color:var(--red);
+
+box-shadow:
+
+0 0 0 1px var(--redGlow),
+
+var(--shadowHover);
+
+}
+
+.id{
+
+font-size:12px;
+
+font-weight:700;
+
+letter-spacing:1px;
+
+color:var(--red);
+
+}
+
+.title{
+
+font-size:18px;
+
+font-weight:900;
+
+margin:12px 0;
+
+line-height:1.7;
+
+}
+
+.meta{
+
+display:flex;
+
+justify-content:space-between;
+
+gap:8px;
+
+font-size:13px;
+
+color:var(--muted);
+
+flex-wrap:wrap;
+
+}
+
+.badge{
+
+padding:7px 12px;
+
+border-radius:999px;
+
+font-size:12px;
+
+font-weight:900;
+
+}
+
+.high{
+
+background:
+rgba(255,0,0,.10);
+
+color:#ff3434;
+
+border:
+1px solid rgba(255,0,0,.15);
+
+}
+
+.medium{
+
+background:
+rgba(255,196,0,.12);
+
+color:#d99a00;
+
+border:
+1px solid rgba(255,196,0,.14);
+
+}
+
+.low{
+
+background:
+rgba(0,180,80,.10);
+
+color:#13a755;
+
+border:
+1px solid rgba(0,180,80,.14);
+
+}
+
+.modal{
+
+position:fixed;
+
+inset:0;
+
+display:none;
+
+align-items:center;
+
+justify-content:center;
+
+background:
+rgba(0,0,0,.75);
+
+padding:16px;
+
+z-index:1000;
+
+}
+
+.modal.active{
+display:flex;
+}
+
+.box{
+
+width:min(920px,100%);
+
+max-height:92vh;
+
+overflow:auto;
+
+background:var(--card-solid);
+
+border:1px solid var(--line);
+
+border-radius:26px;
+
+padding:26px;
+
+box-shadow:
+0 30px 70px rgba(0,0,0,.35);
+
+}
+
+.close{
+
+float:left;
+
+font-size:24px;
+
+cursor:pointer;
+
+color:var(--red);
+
+transition:.2s;
+
+}
+
+.close:hover{
+
+transform:scale(1.08);
+
+}
+
+.detail{
+
+margin-top:18px;
+
+line-height:2.1;
+
+font-size:15px;
+
+color:var(--text);
+
+}
+
+.legal{
+
+margin-top:34px;
+
+padding:24px;
+
+border-radius:24px;
+
+background:var(--card);
+
+border:1px solid var(--line);
+
+box-shadow:var(--shadow);
+
+line-height:2.15;
+
+font-size:13px;
+
+color:var(--muted);
+
+}
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:var(--red);
+
+border-radius:999px;
+
+}
+
+</style>
+</head>
+
+<body id="main-content">
+
+<header>
+
+<div style="display:flex;gap:14px;align-items:center">
+
+<svg
+width="44"
+height="44"
+viewBox="0 0 64 64"
+xmlns="http://www.w3.org/2000/svg">
+
+<rect
+x="6"
+y="6"
+width="52"
+height="52"
+rx="12"
+fill="#c40000"/>
+
+<path
+d="M18 20h28v5H18zm0 12h28v5H18zm0 12h18v5H18"
+fill="white"/>
+
+</svg>
+
+<div>
+
+<div class="logo">SZN-ALS</div>
+<div class="sub">
+Archive Security & Legal System
+</div>
+
+</div>
+</div>
+
+<button class="themeBtn" id="themeBtn">
+
+<svg
+width="20"
+height="20"
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+stroke-width="2">
+
+<path d="M21 12.7A9 9 0 1 1 11.3 3 7 7 0 0 0 21 12.7"/>
+
+</svg>
+
+</button>
+
+</header>
+
+<div class="wrap">
+
+<div class="controls">
+
+<input id="search" placeholder="جستجو">
+
+<select id="filter">
+<option value="all">همه</option>
+<option value="high">بحرانی</option>
+<option value="medium">بررسی</option>
+<option value="low">بسته</option>
+</select>
+
+</div>
+
+<div class="grid" id="grid"></div>
+
+</div>
+
+<div class="modal" id="modal">
+
+<div class="box">
+
+<div class="close" id="close">✕</div>
+
+<div id="modalContent"></div>
+
+</div>
+
+</div>
+
+<div class="legal">
+    <strong>
+SZN-ALS | اطلاعیه رسمی حقوقی، حریم خصوصی و ضوابط ثبت گزارش
+</strong>
+<br><br>
+
+۱- سامانه SZN-ALS یک بستر ثبت، مستندسازی، مدیریت و آرشیو گزارش‌ها، رخدادها، مستندات و سوابق مرتبط با فعالیت‌های سایبری، مدیریتی و امنیتی است و صرفاً با هدف ثبت اطلاعات، بررسی داخلی، حفظ امنیت و مستندسازی مورد استفاده قرار می‌گیرد.
+
+<br><br>
+
+۲- ثبت هرگونه گزارش، ادعا، مستند، شکایت، هشدار یا پرونده در این سامانه به‌هیچ‌وجه به‌معنای اثبات وقوع تخلف، ارتکاب جرم، صدور رأی، اعلام مجرمیت، انتساب قطعی مسئولیت یا تأیید صحت کامل محتوای ثبت‌شده نخواهد بود و تمامی موارد تا زمان بررسی، صرفاً در حکم اطلاعات و ادعاهای ثبت‌شده تلقی می‌شوند.
+
+<br><br>
+
+۳- اطلاعات ثبت‌شده ممکن است شامل گزارش‌های دریافتی از کاربران، مدیران، کارشناسان یا منابع ثالث باشد و مسئولیت صحت نهایی موضوعات مطرح‌شده منوط به بررسی مستندات، تحقیقات تکمیلی و تصمیم مراجع ذی‌صلاح خواهد بود.
+
+<br><br>
+
+۴- این سامانه مرجع قضایی، انتظامی یا مرجع صدور حکم محسوب نمی‌شود و هیچ‌گونه تصمیم‌گیری قضایی، کیفری یا حقوقی از طریق آن انجام نمی‌گیرد.
+
+<br><br>
+
+۵- تمامی اطلاعات شخصی، داده‌های هویتی، اطلاعات تماس، شماره تلفن، نشانی، شناسه‌های حساس، اطلاعات خانوادگی، داده‌های خصوصی و سایر اطلاعات محرمانه اشخاص تحت حفاظت قرار داشته و در بخش‌های عمومی سامانه منتشر نخواهد شد؛ مگر در مواردی که انتشار آن به موجب حکم قانونی، دستور مقام صالح یا رضایت معتبر صاحب اطلاعات مجاز باشد.
+
+<br><br>
+
+۶- مستندات خام، تصاویر، فایل‌ها، لاگ‌ها، گزارش‌های فنی و مدارک احتمالی پرونده‌ها صرفاً در اختیار مدیران مجاز، کارشناسان تعیین‌شده یا مراجع قانونی ذی‌صلاح قرار خواهد گرفت و لزوماً در دسترس عموم کاربران قرار نمی‌گیرد.
+
+<br><br>
+
+۷- در نسخه عمومی سامانه، در صورت نیاز، اطلاعات حساس اشخاص حذف، ناشناس‌سازی، مخفی‌سازی، خلاصه‌سازی یا سانسور خواهد شد تا از نقض حریم خصوصی، آسیب به حیثیت اشخاص یا سوءاستفاده احتمالی جلوگیری گردد.
+
+<br><br>
+
+۸- هر شخصی که نام، شناسه، حساب کاربری یا اطلاعات مرتبط با وی در گزارش‌های سامانه ذکر شده باشد، حق ارائه توضیح، دفاع، پاسخ، اعتراض، درخواست اصلاح، تکمیل، بازبینی یا حذف اطلاعات را مطابق ضوابط سامانه خواهد داشت.
+
+<br><br>
+
+۹- مدیران سامانه حق دارند در صورت مشاهده اطلاعات نادرست، ناقص، گمراه‌کننده، فاقد مستندات کافی، ناقض قوانین یا مغایر با حقوق اشخاص، نسبت به اصلاح، محدودسازی، مخفی‌سازی یا حذف محتوا اقدام نمایند.
+
+<br><br>
+
+۱۰- هرگونه انتشار عمومی اطلاعات خصوصی اشخاص، داده‌های محرمانه، اسناد هویتی، اطلاعات خانوادگی، شماره تماس، تصاویر شخصی، اطلاعات مالی یا سایر داده‌های حساس بدون مجوز قانونی ممنوع بوده و در صورت مشاهده، حذف یا محدودسازی خواهد شد.
+
+<br><br>
+
+۱۱- کاربران و ثبت‌کنندگان گزارش متعهد می‌شوند از درج اطلاعات جعلی، افترا، توهین، نشر اکاذیب، هتک حیثیت، تهدید، محتوای فریبنده یا هرگونه اطلاعات ناقض قوانین جمهوری اسلامی ایران خودداری نمایند.
+
+<br><br>
+
+۱۲- مسئولیت حقوقی محتوای ارسالی، ادعاها، توضیحات و مستندات بارگذاری‌شده بر عهده ارسال‌کننده آن بوده و سامانه صرفاً نقش بستر ثبت و نگهداری اطلاعات را ایفا می‌کند.
+
+<br><br>
+
+۱۳- در صورت دریافت درخواست رسمی از مراجع قضایی، ضابطان قانونی، پلیس فتا یا سایر مراجع ذی‌صلاح، اطلاعات و سوابق مرتبط مطابق قوانین و مقررات قابل ارائه و همکاری خواهد بود.
+
+<br><br>
+
+۱۴- هرگونه تلاش برای دسترسی غیرمجاز، استخراج داده‌ها، نفوذ، اختلال در عملکرد سامانه، سوءاستفاده از اطلاعات، دور زدن محدودیت‌های امنیتی یا آسیب‌رسانی به زیرساخت‌های سامانه قابل ثبت، مستندسازی و پیگیری قانونی خواهد بود.
+
+<br><br>
+
+۱۵- استفاده از سامانه به‌منزله پذیرش این ضوابط، سیاست حریم خصوصی، چارچوب‌های امنیتی و فرآیندهای رسیدگی داخلی مجموعه محسوب می‌شود.
+
+<br><br>
+
+۱۶- کلیه حقوق مادی، معنوی، محتوایی، ساختاری، فنی و اطلاعاتی این سامانه محفوظ بوده و هرگونه بهره‌برداری غیرمجاز از آن تابع قوانین مربوطه خواهد بود.
+
+<br><br>
+
+۱۷- هدف این سامانه حفظ مستندات، افزایش شفافیت، مدیریت ریسک، ثبت سوابق و همکاری با مراجع ذی‌صلاح است و نباید به‌عنوان ابزار افشاگری عمومی، صدور حکم، محکومیت اشخاص یا جایگزین فرآیندهای قانونی تفسیر شود.
+
+<br><br>
+
+© SZN-ALS Internal Legal Archive System
+
+</div>
+<!--
+<script>
+window.AtlasToolsConfig={
+host:false,
+domainLock:false,
+loaderMin:2500,
+rightClick:false,
+devtools:false,
+
+};
+</script>
+
+<script src="tools.js"></script> -->
+<script>
+const GITHUB_OWNER = "SiteAtlasCode";
+const GITHUB_REPO = "SiteAtlasCode.github.io";
+
+const CACHE_KEY = "szn_issues_cache";
+const CACHE_TIME = "szn_issues_time";
+
+const SYNC_INTERVAL = 300000;
+
+const data = [
+  {
+    id: "ALS-001",
+    title: "پرونده دسترسی غیرمجاز",
+    status: "high",
+    date: "2026/06/01",
+    desc: "ثبت فعالیت مشکوک روی چند بخش سامانه. پرونده جهت بررسی فنی باز شده."
+  },
+  {
+    id: "ALS-002",
+    title: "نقض قوانین داخلی",
+    status: "medium",
+    date: "2026/05/29",
+    desc: "گزارش دریافت شده و در صف بررسی مدیران قرار دارد."
+  },
+  {
+    id: "ALS-003",
+    title: "رفتار مخرب در سیستم",
+    status: "high",
+    date: "2026/05/27",
+    desc: "فعالیت غیرعادی توسط مانیتورینگ ثبت شده."
+  },
+  {
+    id: "ALS-004",
+    title: "پرونده بسته شده",
+    status: "low",
+    date: "2026/05/21",
+    desc: "بررسی تکمیل و نتیجه ثبت شد."
+  }
+];
+
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+const filter = document.getElementById("filter");
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+
+let all = [];
+
+function badge(v) {
+  if (v === "high") return `<span class="badge high">بحرانی</span>`;
+  if (v === "medium") return `<span class="badge medium">بررسی</span>`;
+  return `<span class="badge low">بسته</span>`;
+}
+
+function dedupe(arr) {
+  const map = new Map();
+  arr.forEach(item => {
+    if (!item || !item.id) return;
+    map.set(String(item.id), item);
+  });
+  return [...map.values()];
+}
+
+function loadCache() {
+  try {
+    const cache = localStorage.getItem(CACHE_KEY);
+    if (!cache) return [];
+    const parsed = JSON.parse(cache);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCache(items) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(items));
+    localStorage.setItem(CACHE_TIME, String(Date.now()));
+  } catch {}
+}
+
+function clearCache() {
+  try {
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CACHE_TIME);
+  } catch {}
+}
+
+function normalizeGitHubIssue(issue) {
+  const body = issue.body || "";
+  if (!body.trim().startsWith("[SZN-ISSUE]")) return null;
+
+  const jsonText = body.replace("[SZN-ISSUE]", "").trim();
+
+  try {
+    const parsed = JSON.parse(jsonText);
+    return {
+      id: parsed.id || `GH-${issue.number}`,
+      title: parsed.title || issue.title || "",
+      status: ["high", "medium", "low"].includes(parsed.status) ? parsed.status : "low",
+      date: parsed.date || (issue.created_at ? issue.created_at.slice(0, 10) : ""),
+      desc: parsed.desc || "",
+      details: parsed.details || "",
+      updated: issue.updated_at || "",
+      number: issue.number
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function githubIssues() {
+  if (!GITHUB_OWNER || !GITHUB_REPO) return [];
+
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=all&per_page=100`;
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    });
+
+    if (res.status === 404) {
+      clearCache();
+      return [];
+    }
+
+    if (!res.ok) {
+      return loadCache();
+    }
+
+    const issues = await res.json();
+
+    const parsed = issues
+      .filter(x => !x.pull_request)
+      .map(normalizeGitHubIssue)
+      .filter(Boolean);
+
+    saveCache(parsed);
+    return parsed;
+  } catch {
+    clearCache();
+    return [];
+  }
+}
+
+function openCard(item) {
+  modal.classList.add("active");
+  modalContent.innerHTML = `
+    <div class="id">${item.id}</div>
+    <h2 style="margin-top:8px">${item.title}</h2>
+    <div style="margin-top:12px">${badge(item.status)}</div>
+    <div class="detail">${item.details || item.desc || ""}</div>
+  `;
+}
+
+function render() {
+  const q = (search.value || "").toLowerCase().trim();
+  const f = filter.value;
+
+  grid.innerHTML = "";
+
+  const filtered = all.filter(item => {
+    const hay = `${item.title || ""} ${item.id || ""}`.toLowerCase();
+    const matchesQuery = !q || hay.includes(q);
+    const matchesFilter = f === "all" || item.status === f;
+    return matchesQuery && matchesFilter;
+  });
+
+  filtered.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="id">${item.id}</div>
+      <div class="title">${item.title}</div>
+      <div class="meta">
+        ${badge(item.status)}
+        <span>${item.date || ""}</span>
+      </div>
+    `;
+    div.onclick = () => openCard(item);
+    grid.appendChild(div);
+  });
+}
+
+function setAll(nextItems) {
+  const next = dedupe(nextItems);
+  const old = JSON.stringify(all);
+  const now = JSON.stringify(next);
+  if (old !== now) {
+    all = next;
+    render();
+  }
+}
+
+document.getElementById("close").onclick = () => modal.classList.remove("active");
+
+modal.onclick = e => {
+  if (e.target === modal) modal.classList.remove("active");
+};
+
+search.oninput = render;
+filter.onchange = render;
+
+document.getElementById("themeBtn").onclick = () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+};
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+
+async function syncIssues() {
+  const remote = await githubIssues();
+  setAll([...data, ...remote]);
+}
+
+(async () => {
+  const cached = loadCache();
+
+  if (cached.length) {
+    setAll([...data, ...cached]);
+  } else {
+    setAll(data);
+  }
+
+  await syncIssues();
+  setInterval(syncIssues, SYNC_INTERVAL);
+})();
+</script>
+</body>
+  </html>
