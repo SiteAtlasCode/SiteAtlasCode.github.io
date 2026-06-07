@@ -856,5 +856,3 @@ if(document.readyState==="loading"){
   boot();
 }
 })();
-
-window.ATLAS_CORE_LOADED = true;
