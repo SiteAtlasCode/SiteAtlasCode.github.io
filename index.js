@@ -16,9 +16,9 @@ const data = [
 ];    
 
     window.AtlasToolsConfig = Object.freeze({
-  tamper: false,
-  host: false,
-  domainLock: false,
+  tamper: true,
+  host: true,
+  domainLock: true,
   loaderMin: 2500,
   rightClick: false,
   devtools: false
