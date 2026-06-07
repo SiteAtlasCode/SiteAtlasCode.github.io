@@ -1,176 +1,223 @@
-(() => {
-  "use strict";
+const GITHUB_OWNER = "siteatlascode";
+const GITHUB_REPO = "siteatlascode.github.io";
 
-  const W = window;
-  const D = document;
+const CACHE_KEY = "atlas_issues_cache";    
+const CACHE_TIME = "atlas_issues_time";    
+const SYNC_INTERVAL = 300000;    
 
-  const STATE = (W.__ATLAS_GUARD__ ||= {
-    booted: false,
-    locked: false,
-    slots: new Set(),
-    baseline: "",
-    cookieTimer: null,
-    offlineTimer: null,
-    mutationObserver: null
-  });
+const data = [    
+  {    
+    id: "ALS-001",    
+    title: "پرونده APT WAR",    
+    status: "high",    
+    date: "2026/06/7",    
+    desc: "بررسی تکمیل و نتیجه ثبت شد. به زودی آپلود می‌شود."    
+  }    
+];    
 
-  const script = D.currentScript;
-  const slot = (script && script.dataset && script.dataset.slot) ? String(script.dataset.slot) : "unknown";
-  STATE.slots.add(slot);
+    window.AtlasToolsConfig = Object.freeze({
+  tamper: false,
+  host: false,
+  domainLock: false,
+  loaderMin: 2500,
+  rightClick: false,
+  devtools: false
+});
 
-  if (STATE.booted) {
-    W.ATLAS_CORE_LOADED = true;
-    return;
-  }
-  STATE.booted = true;
+const grid = document.getElementById("grid");    
+const search = document.getElementById("search");    
+const filter = document.getElementById("filter");    
+const modal = document.getElementById("modal");    
+const modalContent = document.getElementById("modalContent");    
 
-  const ALLOWED_COOKIES = new Set(["theme", "atlas-theme"]);
-  const SELF_CHECK_DELAY = 3000;   // اگر یکی از دو نسخه لود نشده باشد
-  const SNAPSHOT_DELAY = 5000;     // بعد از ۵ ثانیه مانیتور جدی‌تر شود
-  const OFFLINE_DELAY = 2000;      // قطع اینترنت بیش از ۲ ثانیه
-  const COOKIE_POLL = 1000;
+let all = [];    
 
-  function fnv1a(str) {
-    let h = 2166136261;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 16777619);
-    }
-    return (h >>> 0).toString(16);
-  }
+function badge(v) {    
+  if (v === "high") return `<span class="badge high">بحرانی</span>`;    
+  if (v === "medium") return `<span class="badge medium">بررسی</span>`;    
+  return `<span class="badge low">بسته</span>`;    
+}    
 
-  function parseCookies() {
-    const out = new Map();
-    const raw = D.cookie || "";
-    raw.split(";").map(s => s.trim()).filter(Boolean).forEach(pair => {
-      const idx = pair.indexOf("=");
-      const key = decodeURIComponent((idx >= 0 ? pair.slice(0, idx) : pair)).trim();
-      const val = idx >= 0 ? pair.slice(idx + 1) : "";
-      out.set(key, val);
-    });
-    return out;
-  }
+function dedupe(arr) {    
+  const map = new Map();    
+  arr.forEach(item => {    
+    if (!item || !item.id) return;    
+    map.set(String(item.id), item);    
+  });    
+  return [...map.values()];    
+}    
 
-  function cookiePolicyBroken() {
-    const cookies = parseCookies();
-    for (const key of cookies.keys()) {
-      if (!ALLOWED_COOKIES.has(key)) return true;
-    }
-    return false;
-  }
+function loadCache() {    
+  try {    
+    const cache = localStorage.getItem(CACHE_KEY);    
+    if (!cache) return [];    
+    const parsed = JSON.parse(cache);    
+    return Array.isArray(parsed) ? parsed : [];    
+  } catch {    
+    return [];    
+  }    
+}    
 
-  function currentSnapshot() {
-    const headNodes = Array.from(D.head.querySelectorAll(
-      "script,link[rel='stylesheet'],meta[name],meta[property],title"
-    )).map(el => el.outerHTML).join("||");
+function saveCache(items) {    
+  try {    
+    localStorage.setItem(CACHE_KEY, JSON.stringify(items));    
+    localStorage.setItem(CACHE_TIME, String(Date.now()));    
+  } catch {}    
+}    
 
-    const bodyNodes = Array.from(D.body ? D.body.children : []).map(el => {
-      if (!el || !el.outerHTML) return "";
-      return el.tagName === "SCRIPT" || el.tagName === "LINK" ? el.outerHTML : `${el.tagName}:${el.className}:${el.id}`;
-    }).join("||");
+function clearCache() {    
+  try {    
+    localStorage.removeItem(CACHE_KEY);    
+    localStorage.removeItem(CACHE_TIME);    
+  } catch {}    
+}    
 
-    return fnv1a(headNodes + "##" + bodyNodes + "##" + (D.body ? D.body.className : ""));
-  }
+function normalizeGitHubIssue(issue) {    
+  const body = issue.body || "";    
+  if (!body.trim().startsWith("[ALS-ISSUE]")) return null;    
 
-  function lockPage(reason) {
-    if (STATE.locked) return;
-    STATE.locked = true;
+  const jsonText = body.replace("[ALS-ISSUE]", "").trim();    
 
-    try { clearInterval(STATE.cookieTimer); } catch {}
-    try { clearTimeout(STATE.offlineTimer); } catch {}
-    try { STATE.mutationObserver && STATE.mutationObserver.disconnect(); } catch {}
+  try {    
+    const parsed = JSON.parse(jsonText);    
+    return {    
+      id: parsed.id || `GH-${issue.number}`,    
+      title: parsed.title || issue.title || "",    
+      status: ["high", "medium", "low"].includes(parsed.status) ? parsed.status : "low",    
+      date: parsed.date || (issue.created_at ? issue.created_at.slice(0, 10) : ""),    
+      desc: parsed.desc || "",    
+      details: parsed.details || "",    
+      updated: issue.updated_at || "",    
+      number: issue.number    
+    };    
+  } catch {    
+    return null;    
+  }    
+}    
 
-    try {
-      if (D.documentElement) D.documentElement.classList.add("atlas-locked");
-      if (D.body) {
-        D.body.classList.add("atlas-locked");
-        D.body.innerHTML = "";
-      }
-      const veil = D.createElement("div");
-      veil.id = "atlas-lockscreen";
-      veil.setAttribute("data-reason", reason || "locked");
-      D.documentElement.appendChild(veil);
-    } catch {}
+async function githubIssues() {    
+  if (!GITHUB_OWNER || !GITHUB_REPO) return [];    
 
-    W.ATLAS_CORE_LOADED = false;
-  }
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=all&per_page=100`;    
 
-  function startCookieWatch() {
-    STATE.cookieTimer = setInterval(() => {
-      if (cookiePolicyBroken()) lockPage("cookie-tamper");
-    }, COOKIE_POLL);
-  }
+  try {    
+    const res = await fetch(url, {    
+      method: "GET",    
+      cache: "no-store",    
+      headers: {    
+        "Accept": "application/vnd.github+json",    
+        "X-GitHub-Api-Version": "2022-11-28"    
+      }    
+    });    
 
-  function startOfflineWatch() {
-    const arm = () => {
-      clearTimeout(STATE.offlineTimer);
-      STATE.offlineTimer = setTimeout(() => {
-        if (!navigator.onLine) lockPage("offline");
-      }, OFFLINE_DELAY);
-    };
+    if (res.status === 404) {    
+      clearCache();    
+      return [];    
+    }    
 
-    W.addEventListener("offline", arm);
-    W.addEventListener("online", () => {
-      clearTimeout(STATE.offlineTimer);
-    });
-  }
+    if (!res.ok) {    
+      return loadCache();    
+    }    
 
-  function startSlotCheck() {
-    setTimeout(() => {
-      if (!STATE.slots.has("head") || !STATE.slots.has("body")) {
-        lockPage("missing-slot");
-      }
-    }, SELF_CHECK_DELAY);
-  }
+    const issues = await res.json();    
 
-  function startTamperWatch() {
-    setTimeout(() => {
-      STATE.baseline = currentSnapshot();
+    const parsed = issues    
+      .filter(x => !x.pull_request)    
+      .map(normalizeGitHubIssue)    
+      .filter(Boolean);    
 
-      const mo = new MutationObserver(() => {
-        if (currentSnapshot() !== STATE.baseline) {
-          lockPage("dom-tamper");
-        }
-      });
+    saveCache(parsed);    
+    return parsed;    
+  } catch {    
+    clearCache();    
+    return [];    
+  }    
+}    
 
-      mo.observe(D.documentElement, {
-        subtree: true,
-        childList: true,
-        characterData: true,
-        attributes: true
-      });
+function openCard(item) {    
+  modal.classList.add("active");    
+  modalContent.innerHTML = `    
+    <div class="id">${item.id}</div>    
+    <h2 style="margin-top:8px">${item.title}</h2>    
+    <div style="margin-top:12px">${badge(item.status)}</div>    
+    <div class="detail">${item.details || item.desc || ""}</div>    
+  `;    
+}    
 
-      STATE.mutationObserver = mo;
-    }, SNAPSHOT_DELAY);
-  }
+function render() {    
+  const q = (search.value || "").toLowerCase().trim();    
+  const f = filter.value;    
 
-  D.addEventListener("DOMContentLoaded", () => {
-    if (D.documentElement && !D.documentElement.classList.contains("theme-dark")) {
-      D.documentElement.classList.add("theme-dark");
-    }
+  grid.innerHTML = "";    
 
-    startCookieWatch();
-    startOfflineWatch();
-    startSlotCheck();
-    startTamperWatch();
+  const filtered = all.filter(item => {    
+    const hay = `${item.title || ""} ${item.id || ""}`.toLowerCase();    
+    const matchesQuery = !q || hay.includes(q);    
+    const matchesFilter = f === "all" || item.status === f;    
+    return matchesQuery && matchesFilter;    
+  });    
 
-    if (!D.body) {
-      lockPage("no-body");
-    }
-  }, { once: true });
+  filtered.forEach(item => {    
+    const div = document.createElement("div");    
+    div.className = "card";    
+    div.innerHTML = `    
+      <div class="id">${item.id}</div>    
+      <div class="title">${item.title}</div>    
+      <div class="meta">    
+        ${badge(item.status)}    
+        <span>${item.date || ""}</span>    
+      </div>    
+    `;    
+    div.onclick = () => openCard(item);    
+    grid.appendChild(div);    
+  });    
+}    
 
-  W.addEventListener("error", e => {
-    const tag = e && e.target && e.target.tagName;
-    if (tag === "SCRIPT" || tag === "LINK") {
-      lockPage("asset-error");
-    }
-  }, true);
+function setAll(nextItems) {    
+  const next = dedupe(nextItems);    
+  const old = JSON.stringify(all);    
+  const now = JSON.stringify(next);    
+  if (old !== now) {    
+    all = next;    
+    render();    
+  }    
+}    
 
-  W.addEventListener("load", () => {
-    setTimeout(() => {
-      if (!W.ATLAS_CORE_LOADED) lockPage("core-not-loaded");
-    }, 3000);
-  });
+document.getElementById("close").onclick = () => modal.classList.remove("active");    
 
-  W.ATLAS_CORE_LOADED = true;
+modal.onclick = e => {    
+  if (e.target === modal) modal.classList.remove("active");    
+};    
+
+search.oninput = render;    
+filter.onchange = render;    
+
+document.getElementById("themeBtn").onclick = () => {    
+  document.body.classList.toggle("dark");    
+  localStorage.setItem(    
+    "theme",    
+    document.body.classList.contains("dark") ? "dark" : "light"    
+  );    
+};    
+
+if (localStorage.getItem("theme") === "dark") {    
+  document.body.classList.add("dark");    
+}    
+
+async function syncIssues() {    
+  const remote = await githubIssues();    
+  setAll([...data, ...remote]);    
+}    
+
+(async () => {    
+  const cached = loadCache();    
+
+  if (cached.length) {    
+    setAll([...data, ...cached]);    
+  } else {    
+    setAll(data);    
+  }    
+
+  await syncIssues();    
+  setInterval(syncIssues, SYNC_INTERVAL);    
 })();
