@@ -1,7 +1,4 @@
 window.AtlasToolsConfig = Object.freeze({
-  tamper: false,
-  host: false,
-  domainLock: false,
   loaderMin: 2500,
   rightClick: false,
   devtools: false
