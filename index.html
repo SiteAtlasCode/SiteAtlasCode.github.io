@@ -139,22 +139,30 @@
       z-index: 1;
     }
 
-    .ax9-sparks{
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-      overflow: hidden;
-      mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
-    }
+.ax9-spark{
+  position:absolute;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:
+    0 0 2px #fff,
+    0 0 6px rgba(255,255,255,.7);
+  will-change:transform;
+}
 
-.ax9-sparks{
+    .ax9-sparks{
   position:absolute;
   inset:0;
   z-index:6;
   pointer-events:none;
   overflow:hidden;
-}
+
+  mask-image: radial-gradient(
+    circle at center,
+    #000 0%,
+    #000 80%,
+    transparent 100%
+  );
+    }
 
     .ax9-content{
       position: relative;
