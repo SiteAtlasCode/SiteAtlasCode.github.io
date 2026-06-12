@@ -13,7 +13,7 @@ const DEF={
   loaderMin:2500,
   integrityUrl:"https://siteatlascode.github.io/tools.js",
   expectedToolsHash:"",
-  allowedScriptSrcs:["https://siteatlascode.github.io/tools.js","https://www.siteatlascode.github.io/tools.js"],
+  allowedScriptSrcs:["https://siteatlascode.github.io/tools.js","https://www.siteatlascode.github.io/tools.js","https://www.siteatlascode.github.io/config.js","https://www.siteatlascode.github.io/ui.js"],
   captchaPool:[{img:"1.png",code:"H3h&8"},{img:"2.png",code:"A7P#2"},{img:"3.png",code:"Q8m@9"},],
   banThresholds:{medium:20,high:40,veryHigh:60,extreme:80},
   banDurations:{captchaFail:10*60*1000,medium:0,high:0,highRiskBan:60*60*1000,extremeBan:12*60*60*1000},
