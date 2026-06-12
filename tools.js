@@ -5,8 +5,6 @@ const CFG_IN=W.AtlasToolsConfig&&typeof W.AtlasToolsConfig==="object"?W.AtlasToo
 const DEF={
   host:["siteatlascode.github.io","www.siteatlascode.github.io"],
   domainLock:true,
-  rightClick:true,
-  devtools:true,
   tamper:true,
   ip:true,
   device:true,
@@ -99,8 +97,6 @@ const repairConfigIfNeeded=()=>{
   if(detectTamperConfigFalse()<=5) return false;
   W.AtlasToolsConfig=Object.assign({},DEF,CFG_IN,{
     domainLock:DEF.domainLock,
-    rightClick:DEF.rightClick,
-    devtools:DEF.devtools,
     tamper:DEF.tamper,
     ip:DEF.ip,
     device:DEF.device,
@@ -164,32 +160,6 @@ const overlay=(id,style)=>{
   return e;
 };
 const clearOverlays=()=>["atlas-sec-loader","atlas-sec-human","atlas-sec-ban","atlas-sec-audit"].forEach(rm);
-
-const blockRightClick=()=>{
-  if(!CFG.rightClick) return;
-  D.addEventListener("contextmenu",e=>e.preventDefault(),{capture:true});
-  D.addEventListener("keydown",e=>{
-    const k=str(e.key).toLowerCase();
-    if(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&k==="i")||(e.ctrlKey&&e.shiftKey&&k==="j")||(e.ctrlKey&&k==="u")||(e.ctrlKey&&k==="s")||(e.ctrlKey&&k==="p")){
-      e.preventDefault();
-    }
-  },{capture:true});
-};
-
-const detectDevtools=()=>{
-  if(!CFG.devtools) return;
-  let last=0;
-  const tick=()=>{
-    if(STATE.blocked) return;
-    const w=W.outerWidth-W.innerWidth;
-    const h=W.outerHeight-W.innerHeight;
-    if((w>160||h>160)&&now()-last>1500){
-      last=now();
-      kill("Developer tools detected",12*60*60*1000,{kind:"devtools"});
-    }
-  };
-  setInterval(tick,700);
-};
 
 const initialNetworkState=()=>{
   const n=storeRead(K.net,{hour:Math.floor(now()/3600000),flaps:0,day:Math.floor(now()/86400000),ipChanges:0});
@@ -815,8 +785,6 @@ const boot=async()=>{
     return;
   }
 
-  blockRightClick();
-  detectDevtools();
   observeNetwork();
   scriptInjectionGuard();
 
