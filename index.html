@@ -1,514 +1,409 @@
-<!DOCTYPE html><html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Atlas Code</title>
-  
-  <meta http-equiv="Content-Security-Policy"
-content="
-default-src 'self';
-script-src 'self' https://siteatlascode.github.io;
-style-src 'self' 'unsafe-inline';
-img-src 'self' data: https://siteatlascode.github.io;
-connect-src 'self' https://api.github.com https://api.ipify.org https://siteatlascode.github.io;
-font-src 'self';
-media-src 'none';
-object-src 'none';
-frame-src 'none';
-base-uri 'self';
-form-action 'self';
-upgrade-insecure-requests;
-">
-  <style>
-    :root {
-      --bg: #030406;
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.76);
-      --accent: #ff2b4d;
-      --accent-2: #b7bcc8;
-      --line: rgba(255,255,255,0.08);
-      --soft: rgba(255,255,255,0.04);
-      --shadow: rgba(0,0,0,0.68);
-    }* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+/** window.AtlasToolsConfig = Object.freeze({
+  tamper: false,
+  host: false,
+  domainLock: false,
+}); **/
+
+const GITHUB_OWNER = "siteatlascode";
+const GITHUB_REPO = "siteatlascode.github.io";
+
+const GITHUB_ISSUES_API = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=all&per_page=100`;
+    
+const ATLASGIT_BACKUP_URL = "https://siteatlascode.github.io/AtlasGit.txt";
+
+const CACHE_KEY_ISSUES = "atlas_issues_cache_v2";
+const CACHE_TIME_ISSUES = "atlas_issues_time_v2";
+const CACHE_KEY_ATLAS = "atlas_atlasgit_cache_v2";
+const CACHE_TIME_ATLAS = "atlas_atlasgit_time_v2";
+const SYNC_INTERVAL = 300000;
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+const filter = document.getElementById("filter");
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+const closeBtn = document.getElementById("close");
+
+let all = [];
+let atlasItems = [];
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-a,
-a:visited,
-a:hover,
-a:active,
-a:focus{
-    color:inherit;
-    text-decoration:none;
+function badge(v) {
+  if (v === "high") return `<span class="badge high">بحرانی</span>`;
+  if (v === "medium") return `<span class="badge medium">بررسی</span>`;
+  return `<span class="badge low">بسته</span>`;
 }
 
-.stage {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(circle at 50% 36%, rgba(255,43,77,0.22), transparent 20%),
-    radial-gradient(circle at 72% 18%, rgba(255,255,255,0.05), transparent 14%),
-    radial-gradient(circle at 20% 78%, rgba(255,43,77,0.08), transparent 18%),
-    linear-gradient(180deg, #06080d 0%, #030406 52%, #020305 100%);
+function dedupe(arr) {
+  const map = new Map();
+  arr.forEach(item => {
+    if (!item || !item.id) return;
+    map.set(String(item.id), item);
+  });
+  return [...map.values()];
 }
 
-.stage::before {
-  content: "";
-  position: absolute;
-  inset: -16%;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 44%),
-    radial-gradient(circle at 18% 82%, rgba(255,43,77,0.10), transparent 17%),
-    radial-gradient(circle at 84% 68%, rgba(255,255,255,0.03), transparent 15%);
-  animation: drift 11s linear infinite;
-  pointer-events: none;
-  z-index: 0;
+function loadCache(key) {
+  try {
+    const cache = localStorage.getItem(key);
+    if (!cache) return [];
+    const parsed = JSON.parse(cache);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
-.stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 100% 6px, 76px 100%;
-  opacity: 0.10;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  z-index: 1;
-  animation: gridMove 9s linear infinite;
+function saveCache(key, timeKey, items) {
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+    localStorage.setItem(timeKey, String(Date.now()));
+  } catch {}
 }
 
-@keyframes drift {
-  0% { transform: translate3d(0,0,0) scale(1); }
-  50% { transform: translate3d(-1.8%, 1%, 0) scale(1.025); }
-  100% { transform: translate3d(0,0,0) scale(1); }
+function clearCache(key, timeKey) {
+  try {
+    localStorage.removeItem(key);
+    localStorage.removeItem(timeKey);
+  } catch {}
 }
 
-@keyframes gridMove {
-  from { transform: translate3d(0,0,0); }
-  to { transform: translate3d(0, 48px, 0); }
+function safeJSONParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
-.scanline {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent);
-  background-size: 100% 14px;
-  opacity: 0.10;
-  animation: scan 2.15s linear infinite;
+function normalizeGitHubIssue(issue) {
+  const body = String(issue?.body ?? "").trim();
+
+  if (!body.startsWith("[ALS-ISSUE]")) {
+    return null;
+  }
+
+  const jsonText = body.slice("[ALS-ISSUE]".length).trim();
+  const parsed = safeJSONParse(jsonText);
+
+  if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
+    return null;
+  }
+
+  const inner = String(parsed.inner ?? "text")
+    .trim()
+    .toLowerCase();
+
+  return {
+    id: parsed.id || `GH-${issue.number}`,
+    title: parsed.title || issue.title || "",
+    status: ["high", "medium", "low"].includes(parsed.status)
+      ? parsed.status
+      : "low",
+    date: parsed.date || (issue.created_at
+      ? issue.created_at.slice(0, 10)
+      : ""),
+    desc: parsed.desc || "",
+    details: parsed.details || "",
+    inner: inner === "html" ? "html" : "text",
+    updated: issue.updated_at || "",
+    number: issue.number
+  };
 }
 
-@keyframes scan {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100%); }
+function normalizeAtlasGitRecord(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+
+  const id = String(item.id ?? "").trim();
+  if (!id) return null;
+
+  const inner = String(item.inner ?? "text")
+    .trim()
+    .toLowerCase();
+
+  return {
+    id,
+    text: String(item.text ?? ""),
+    inner: inner === "html" ? "html" : "text"
+  };
 }
 
-.noise {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  opacity: 0.045;
-  background-image:
-    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 42%, rgba(255,255,255,0.65) 0 1px, transparent 1px),
-    radial-gradient(circle at 36% 80%, rgba(255,255,255,0.75) 0 1px, transparent 1px);
-  background-size: 180px 180px, 220px 220px, 260px 260px;
-  animation: noiseMove 13s linear infinite;
+function parseAtlasGitText(rawText) {
+  const text = String(rawText ?? "").trim();
+  if (!text) return [];
+
+  const jsonText = text.startsWith("[AtlasGit]")
+    ? text.slice("[AtlasGit]".length).trim()
+    : text;
+
+  const parsed = safeJSONParse(jsonText);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed
+    .map(normalizeAtlasGitRecord)
+    .filter(Boolean);
 }
 
-@keyframes noiseMove {
-  from { transform: translate3d(0,0,0); }
-  to { transform: translate3d(-140px, 90px, 0); }
+async function githubIssues() {
+  if (!GITHUB_OWNER || !GITHUB_REPO) return [];
+
+  try {
+    const res = await fetch(GITHUB_ISSUES_API, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    });
+
+    if (res.status === 404) {
+      clearCache(CACHE_KEY_ISSUES, CACHE_TIME_ISSUES);
+      return [];
+    }
+
+    if (!res.ok) {
+      return loadCache(CACHE_KEY_ISSUES);
+    }
+
+    const issues = await res.json();
+    const parsed = issues
+      .filter(x => !x.pull_request)
+      .map(normalizeGitHubIssue)
+      .filter(Boolean);
+
+    saveCache(CACHE_KEY_ISSUES, CACHE_TIME_ISSUES, parsed);
+    return parsed;
+  } catch {
+    return loadCache(CACHE_KEY_ISSUES);
+  }
 }
 
-.flicker {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-  background: rgba(255,255,255,0.015);
-  animation: flicker 4.8s infinite steps(1, end);
+async function githubAtlasGit() {
+  try {
+    const res = await fetch(GITHUB_ISSUES_API, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    });
+
+    if (res.status === 404) {
+      clearCache(CACHE_KEY_ATLAS, CACHE_TIME_ATLAS);
+      return [];
+    }
+
+    if (!res.ok) {
+      return loadCache(CACHE_KEY_ATLAS);
+    }
+
+    const issues = await res.json();
+    const items = [];
+
+    issues
+      .filter(x => !x.pull_request)
+      .forEach(issue => {
+        const parsed = parseAtlasGitText(issue?.body || "");
+        if (parsed.length) items.push(...parsed);
+      });
+
+    const deduped = dedupe(items);
+    saveCache(CACHE_KEY_ATLAS, CACHE_TIME_ATLAS, deduped);
+    return deduped;
+  } catch {
+    return loadCache(CACHE_KEY_ATLAS);
+  }
 }
 
-@keyframes flicker {
-  0%, 91%, 100% { opacity: 0; }
-  92% { opacity: 0.08; }
-  94% { opacity: 0.02; }
-  95% { opacity: 0.12; }
-  97% { opacity: 0; }
-  98% { opacity: 0.05; }
-  99% { opacity: 0; }
+async function loadAtlasGitBackup() {
+  try {
+    const res = await fetch(ATLASGIT_BACKUP_URL, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!res.ok) {
+      return loadCache(CACHE_KEY_ATLAS);
+    }
+
+    const text = await res.text();
+    const parsed = parseAtlasGitText(text);
+    const deduped = dedupe(parsed);
+
+    if (deduped.length) {
+      saveCache(CACHE_KEY_ATLAS, CACHE_TIME_ATLAS, deduped);
+    }
+
+    return deduped;
+  } catch {
+    return loadCache(CACHE_KEY_ATLAS);
+  }
 }
 
-.sparks {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  overflow: hidden;
-  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
-}
+function openCard(item) {
+  modal.classList.add("active");
 
-.spark {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 0 10px rgba(255,43,77,0.68);
-  opacity: 0;
-  animation: spark 3.5s linear infinite;
-}
+  const desc =
+    item.inner === "html"
+      ? item.desc
+      : escapeHTML(item.desc || "");
 
-@keyframes spark {
-  0% { transform: translate3d(0, 18vh, 0) scale(0.7); opacity: 0; }
-  10% { opacity: 0.9; }
-  50% { opacity: 0.42; }
-  100% { transform: translate3d(var(--dx), -120vh, 0) scale(1.15); opacity: 0; }
-}
+  const details =
+    item.inner === "html"
+      ? item.details
+      : escapeHTML(item.details || "");
 
-.content {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 22px;
-}
+  modalContent.innerHTML = `
+    <div class="id">${escapeHTML(item.id)}</div>
 
-.hero {
-  width: min(1040px, 100%);
-  text-align: center;
-  padding: clamp(16px, 4vw, 38px);
-  position: relative;
-}
+    <h2 style="margin-top:8px">
+      ${escapeHTML(item.title)}
+    </h2>
 
-.frame {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 28px;
-  border: 1px solid rgba(255,255,255,0.08);
-  opacity: 0.92;
-}
-
-.frame::before,
-.frame::after {
-  content: "";
-  position: absolute;
-  inset: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(255,43,77,0.10);
-  mask: linear-gradient(#000, transparent 84%);
-}
-
-.frame::after {
-  inset: 28px;
-  border-color: rgba(255,255,255,0.06);
-  mask: linear-gradient(transparent 12%, #000 56%, transparent 100%);
-}
-
-.hero-line {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255,43,77,0.90), rgba(255,255,255,0.20), transparent);
-  box-shadow: 0 0 18px rgba(255,43,77,0.15);
-}
-
-.hero-line.top {
-  top: 12%;
-  width: min(88vw, 780px);
-  height: 2px;
-  animation: pulseLine 1.45s ease-in-out infinite;
-}
-
-.hero-line.bottom {
-  bottom: 12%;
-  width: min(84vw, 640px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.58), transparent);
-  opacity: 0.50;
-  animation: pulseLine 2.1s ease-in-out infinite reverse;
-}
-
-@keyframes pulseLine {
-  0%, 100% { transform: translateX(-50%) scaleX(0.86); opacity: 0.42; }
-  50% { transform: translateX(-50%) scaleX(1.02); opacity: 1; }
-}
-
-.core {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: min(54vw, 760px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,43,77,0.16), rgba(255,43,77,0.05) 38%, transparent 70%);
-  opacity: 0.96;
-  pointer-events: none;
-  z-index: 5;
-  animation: corePulse 2.5s ease-in-out infinite;
-}
-
-.core::before,
-.core::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.08);
-  animation: ring 4.6s ease-in-out infinite;
-}
-
-.core::after {
-  inset: 10%;
-  border-color: rgba(255,255,255,0.06);
-  animation-duration: 6.1s;
-}
-
-@keyframes corePulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.74; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-}
-
-@keyframes ring {
-  0%, 100% { transform: scale(0.94); opacity: 0.22; }
-  50% { transform: scale(1.04); opacity: 0.50; }
-}
-
-.hero::before,
-.hero::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 10vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
-  pointer-events: none;
-  opacity: 0.50;
-}
-
-.hero::before { right: 0; transform: translateY(-50%) skewX(-16deg); }
-.hero::after { left: 0; transform: translateY(-50%) skewX(16deg); }
-
-.title {
-  position: relative;
-  margin: 0;
-  display: inline-block;
-  font-size: clamp(3.1rem, 10vw, 8rem);
-  line-height: 0.88;
-  letter-spacing: -0.11em;
-  text-transform: uppercase;
-  font-weight: 950;
-  text-shadow: 0 0 20px rgba(0,0,0,0.72);
-  transform: translateZ(0);
-  animation: titlePulse 1.55s ease-in-out infinite, titleTilt 4.8s ease-in-out infinite;
-}
-
-.title span {
-  color: var(--accent);
-  text-shadow: 0 0 18px rgba(255, 43, 77, 0.96), 0 0 56px rgba(255, 43, 77, 0.16);
-}
-
-.title.glitch::before,
-.title.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0.95;
-}
-
-.title.glitch::before {
-  color: rgba(255,255,255,0.96);
-  transform: translate(1px, 0);
-  clip-path: inset(0 0 58% 0);
-  animation: glitch1 0.9s infinite linear alternate-reverse;
-}
-
-.title.glitch::after {
-  color: var(--accent);
-  transform: translate(-1px, 0);
-  clip-path: inset(48% 0 0 0);
-  animation: glitch2 1.03s infinite linear alternate-reverse;
-}
-
-@keyframes glitch1 {
-  0%, 100% { transform: translate(1px, 0); }
-  12% { transform: translate(-4px, -1px); }
-  24% { transform: translate(3px, 1px); }
-  36% { transform: translate(-2px, 0); }
-  48% { transform: translate(4px, -1px); }
-  60% { transform: translate(-3px, 1px); }
-  72% { transform: translate(2px, 0); }
-  84% { transform: translate(-1px, -1px); }
-}
-
-@keyframes glitch2 {
-  0%, 100% { transform: translate(-1px, 0); }
-  12% { transform: translate(3px, 1px); }
-  24% { transform: translate(-4px, -1px); }
-  36% { transform: translate(4px, 0); }
-  48% { transform: translate(-2px, 1px); }
-  60% { transform: translate(2px, 0); }
-  72% { transform: translate(-3px, -1px); }
-  84% { transform: translate(1px, 1px); }
-}
-
-@keyframes titlePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.014); }
-}
-
-@keyframes titleTilt {
-  0%, 100% { transform: rotate(0deg) translateY(0); }
-  50% { transform: rotate(-0.15deg) translateY(-1px); }
-}
-
-.subtitle {
-  margin: 18px auto 0;
-  max-width: 58ch;
-  font-size: clamp(0.98rem, 1.8vw, 1.06rem);
-  line-height: 1.9;
-  color: var(--muted);
-  letter-spacing: 0.01em;
-}
-
-.chips {
-  margin-top: 18px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.chip {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--line);
-  color: rgba(255,255,255,0.88);
-  font-size: 0.84rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.chip.red {
-  background: rgba(255,43,77,0.10);
-  border-color: rgba(255,43,77,0.22);
-  color: #ffe5eb;
-}
-
-.chip.gray {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.09);
-  color: #e8ebf0;
-}
-
-.signature {
-  position: absolute;
-  left: 18px;
-  bottom: 16px;
-  z-index: 12;
-  font-size: 0.74rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.40);
-  user-select: none;
-}
-
-.sparks {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-  overflow: hidden;
-  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
-}
-
-.spark {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 0 10px rgba(255,43,77,0.68);
-  opacity: 0;
-  animation: spark 3.2s linear infinite;
-}
-
-@keyframes spark {
-  0% { transform: translate3d(0, 18vh, 0) scale(0.7); opacity: 0; }
-  8% { opacity: 0.9; }
-  50% { opacity: 0.38; }
-  100% { transform: translate3d(var(--dx), -120vh, 0) scale(1.12); opacity: 0; }
-}
-
-@media (max-width: 700px) {
-  .hero { padding: 12px; }
-  .subtitle { line-height: 1.76; }
-  .signature { left: 14px; bottom: 12px; }
-  .chips { gap: 8px; }
-  .chip { padding: 9px 12px; font-size: 0.76rem; }
-  .core { width: 84vw; }
-  .hero::before,
-  .hero::after { width: 14vw; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
-}
-
-  </style>
-</head>
-<body>
-  <section class="stage" id="stage" aria-label="Cyber hero page">
-    <div class="core"></div>
-    <div class="hero-line top"></div>
-    <div class="hero-line bottom"></div>
-    <div class="scanline"></div>
-    <div class="noise"></div>
-    <div class="flicker"></div>
-    <div class="sparks" id="sparks"></div><div class="content">
-  <div class="hero">
-    <div class="frame"></div>
-    <a href="https://SiteAtlasCode.github.io"><h1 class="title glitch" id="title" data-text="ATLAS CODE">ATLAS <span>CODE</span></h1></a>
-    <p class="subtitle">
-      متن نمونه
-    </p>
-    <div class="chips">
-      <a href="https://SiteAtlasCode.github.io/tools" id="themeBtn" class="chip red">tools</a>
-      <a href="https://SiteAtlasCode.github.io/archive" class="chip gray">archive</a>
-      <a href="https://SiteAtlasCode.github.io/news" class="chip red">news</a>
+    <div style="margin-top:12px">
+      ${badge(item.status)}
     </div>
-  </div>
-</div>
 
-<div class="signature">Atlas Code</div>
+    ${
+      item.desc
+        ? `<div class="detail">${desc}</div>`
+        : ""
+    }
 
-  </section>
-  
-  <script src="https://siteatlascode.github.io/tools.js"></script>
-  <script src="https://siteatlascode.github.io/config.js"></script>
-</body>
-      </html>
+    ${
+      item.details
+        ? `<div class="detail">${details}</div>`
+        : ""
+    }
+  `;
+}
+
+function render() {
+  const q = (search.value || "").toLowerCase().trim();
+  const f = filter.value;
+
+  grid.innerHTML = "";
+
+  const filtered = all.filter(item => {
+    const hay = `${item.title || ""} ${item.id || ""}`.toLowerCase();
+    const matchesQuery = !q || hay.includes(q);
+    const matchesFilter = f === "all" || item.status === f;
+    return matchesQuery && matchesFilter;
+  });
+
+  filtered.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="id">${escapeHTML(item.id)}</div>
+      <div class="title">${escapeHTML(item.title)}</div>
+      <div class="meta">
+        ${badge(item.status)}
+        <span>${escapeHTML(item.date || "")}</span>
+      </div>
+    `;
+    div.onclick = () => openCard(item);
+    grid.appendChild(div);
+  });
+}
+
+function setAll(nextItems) {
+  const next = dedupe(nextItems);
+  const old = JSON.stringify(all);
+  const now = JSON.stringify(next);
+
+  if (old !== now) {
+    all = next;
+    render();
+  }
+}
+
+function applyAtlasGit(items) {
+  const map = new Map();
+
+  items.forEach(item => {
+    map.set(String(item.id), {
+      text: String(item.text ?? ""),
+      inner: item.inner || "text"
+    });
+  });
+
+  document.querySelectorAll("[AtlasGit]").forEach(el => {
+    const id = el.getAttribute("AtlasGit");
+
+    if (!id || !map.has(id)) {
+      return;
+    }
+
+    const data = map.get(id);
+
+    if (data.inner === "html") {
+      el.innerHTML = data.text;
+    } else {
+      el.textContent = data.text;
+    }
+  });
+}
+
+closeBtn.onclick = () => modal.classList.remove("active");
+
+modal.onclick = e => {
+  if (e.target === modal) modal.classList.remove("active");
+};
+
+search.oninput = render;
+filter.onchange = render;
+
+document.getElementById("themeBtn").onclick = () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+};
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+
+async function syncIssues() {
+  const remote = await githubIssues();
+  setAll(remote);
+}
+
+async function syncAtlasGit() {
+  let items = await githubAtlasGit();
+
+  if (!items.length) {
+    items = await loadAtlasGitBackup();
+  }
+
+  atlasItems = dedupe(items);
+  applyAtlasGit(atlasItems);
+}
+
+(async () => {
+  const cachedIssues = loadCache(CACHE_KEY_ISSUES);
+  const cachedAtlas = loadCache(CACHE_KEY_ATLAS);
+  setAll(cachedIssues);
+
+  if (cachedAtlas.length) {
+    atlasItems = cachedAtlas;
+    applyAtlasGit(atlasItems);
+  }
+
+  await syncIssues();
+  await syncAtlasGit();
+
+  setInterval(syncIssues, SYNC_INTERVAL);
+  setInterval(syncAtlasGit, SYNC_INTERVAL);
+})();
