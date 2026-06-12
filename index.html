@@ -1,50 +1,8 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html><html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-
-  <title>Atlas Code | ALS — سامانه ثبت گزارش، آرشیو امنیتی، بررسی تخلفات و مستندسازی داخلی</title>
-
-  <meta name="description" content="Atlas Code ALS — سامانه ثبت گزارش، آرشیو پرونده‌ها، بررسی تخلفات، مستندسازی داخلی، پیگیری امنیت و مدیریت رخدادها">
-  <meta name="keywords" content="Atlas Code,ALS,AtlasCode,AtlasCodeALS,سامانه ثبت گزارش,سامانه تخلفات,آرشیو داخلی,ثبت تخلف,پرونده امنیتی,سیستم امنیتی,ثبت رخداد,پیگیری تخلف,مدیریت امنیت,آرشیو قانونی,بررسی داخلی,مستندسازی,گزارش امنیتی,پرونده مدیریتی,archive,security,incident-reporting,documentation,legal-system,internal-management,github-pages,atlas-code,als">
-  <meta name="author" content="Atlas Code">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-  <meta name="googlebot" content="index,follow">
-  <meta name="bingbot" content="index,follow">
-  <meta name="language" content="fa">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="color-scheme" content="light dark">
-  <meta name="format-detection" content="telephone=no">
-
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-
-  <link rel="canonical" href="https://AtlasCodeALS.github.io/">
-  <meta property="og:url" content="https://AtlasCodeALS.github.io/">
-
-  <link rel="icon" type="image/png" href="AtlasCode.png">
-
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="fa_IR">
-  <meta property="og:title" content="Atlas Code | ALS">
-  <meta property="og:description" content="سامانه رسمی ثبت گزارش و آرشیو امنیتی">
-  <meta property="og:site_name" content="Atlas Code | ALS">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Atlas Code | ALS">
-  <meta name="twitter:description" content="سامانه ثبت و بررسی داخلی">
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"WebSite",
-    "name":"Atlas Code | ALS",
-    "url":"/",
-    "inLanguage":"fa",
-    "description":"سامانه ثبت گزارش، آرشیو و بررسی داخلی"
-  }
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Atlas Code</title>
   
   <meta http-equiv="Content-Security-Policy"
 content="
@@ -61,57 +19,495 @@ base-uri 'self';
 form-action 'self';
 upgrade-insecure-requests;
 ">
+  <style>
+    :root {
+      --bg: #030406;
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.76);
+      --accent: #ff2b4d;
+      --accent-2: #b7bcc8;
+      --line: rgba(255,255,255,0.08);
+      --soft: rgba(255,255,255,0.04);
+      --shadow: rgba(0,0,0,0.68);
+    }* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-<link rel="stylesheet" href="./style.css">
+a,
+a:visited,
+a:hover,
+a:active,
+a:focus{
+    color:inherit;
+    text-decoration:none;
+}
 
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255,43,77,0.22), transparent 20%),
+    radial-gradient(circle at 72% 18%, rgba(255,255,255,0.05), transparent 14%),
+    radial-gradient(circle at 20% 78%, rgba(255,43,77,0.08), transparent 18%),
+    linear-gradient(180deg, #06080d 0%, #030406 52%, #020305 100%);
+}
+
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: -16%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 44%),
+    radial-gradient(circle at 18% 82%, rgba(255,43,77,0.10), transparent 17%),
+    radial-gradient(circle at 84% 68%, rgba(255,255,255,0.03), transparent 15%);
+  animation: drift 11s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 100% 6px, 76px 100%;
+  opacity: 0.10;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+  animation: gridMove 9s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(-1.8%, 1%, 0) scale(1.025); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+@keyframes gridMove {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(0, 48px, 0); }
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 100% 14px;
+  opacity: 0.10;
+  animation: scan 2.15s linear infinite;
+}
+
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 42%, rgba(255,255,255,0.65) 0 1px, transparent 1px),
+    radial-gradient(circle at 36% 80%, rgba(255,255,255,0.75) 0 1px, transparent 1px);
+  background-size: 180px 180px, 220px 220px, 260px 260px;
+  animation: noiseMove 13s linear infinite;
+}
+
+@keyframes noiseMove {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(-140px, 90px, 0); }
+}
+
+.flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: rgba(255,255,255,0.015);
+  animation: flicker 4.8s infinite steps(1, end);
+}
+
+@keyframes flicker {
+  0%, 91%, 100% { opacity: 0; }
+  92% { opacity: 0.08; }
+  94% { opacity: 0.02; }
+  95% { opacity: 0.12; }
+  97% { opacity: 0; }
+  98% { opacity: 0.05; }
+  99% { opacity: 0; }
+}
+
+.sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
+}
+
+.spark {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 10px rgba(255,43,77,0.68);
+  opacity: 0;
+  animation: spark 3.5s linear infinite;
+}
+
+@keyframes spark {
+  0% { transform: translate3d(0, 18vh, 0) scale(0.7); opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { opacity: 0.42; }
+  100% { transform: translate3d(var(--dx), -120vh, 0) scale(1.15); opacity: 0; }
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+.hero {
+  width: min(1040px, 100%);
+  text-align: center;
+  padding: clamp(16px, 4vw, 38px);
+  position: relative;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.08);
+  opacity: 0.92;
+}
+
+.frame::before,
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,43,77,0.10);
+  mask: linear-gradient(#000, transparent 84%);
+}
+
+.frame::after {
+  inset: 28px;
+  border-color: rgba(255,255,255,0.06);
+  mask: linear-gradient(transparent 12%, #000 56%, transparent 100%);
+}
+
+.hero-line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,43,77,0.90), rgba(255,255,255,0.20), transparent);
+  box-shadow: 0 0 18px rgba(255,43,77,0.15);
+}
+
+.hero-line.top {
+  top: 12%;
+  width: min(88vw, 780px);
+  height: 2px;
+  animation: pulseLine 1.45s ease-in-out infinite;
+}
+
+.hero-line.bottom {
+  bottom: 12%;
+  width: min(84vw, 640px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.58), transparent);
+  opacity: 0.50;
+  animation: pulseLine 2.1s ease-in-out infinite reverse;
+}
+
+@keyframes pulseLine {
+  0%, 100% { transform: translateX(-50%) scaleX(0.86); opacity: 0.42; }
+  50% { transform: translateX(-50%) scaleX(1.02); opacity: 1; }
+}
+
+.core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(54vw, 760px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,43,77,0.16), rgba(255,43,77,0.05) 38%, transparent 70%);
+  opacity: 0.96;
+  pointer-events: none;
+  z-index: 5;
+  animation: corePulse 2.5s ease-in-out infinite;
+}
+
+.core::before,
+.core::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  animation: ring 4.6s ease-in-out infinite;
+}
+
+.core::after {
+  inset: 10%;
+  border-color: rgba(255,255,255,0.06);
+  animation-duration: 6.1s;
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.74; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+}
+
+@keyframes ring {
+  0%, 100% { transform: scale(0.94); opacity: 0.22; }
+  50% { transform: scale(1.04); opacity: 0.50; }
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 10vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
+  pointer-events: none;
+  opacity: 0.50;
+}
+
+.hero::before { right: 0; transform: translateY(-50%) skewX(-16deg); }
+.hero::after { left: 0; transform: translateY(-50%) skewX(16deg); }
+
+.title {
+  position: relative;
+  margin: 0;
+  display: inline-block;
+  font-size: clamp(3.1rem, 10vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.11em;
+  text-transform: uppercase;
+  font-weight: 950;
+  text-shadow: 0 0 20px rgba(0,0,0,0.72);
+  transform: translateZ(0);
+  animation: titlePulse 1.55s ease-in-out infinite, titleTilt 4.8s ease-in-out infinite;
+}
+
+.title span {
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(255, 43, 77, 0.96), 0 0 56px rgba(255, 43, 77, 0.16);
+}
+
+.title.glitch::before,
+.title.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.95;
+}
+
+.title.glitch::before {
+  color: rgba(255,255,255,0.96);
+  transform: translate(1px, 0);
+  clip-path: inset(0 0 58% 0);
+  animation: glitch1 0.9s infinite linear alternate-reverse;
+}
+
+.title.glitch::after {
+  color: var(--accent);
+  transform: translate(-1px, 0);
+  clip-path: inset(48% 0 0 0);
+  animation: glitch2 1.03s infinite linear alternate-reverse;
+}
+
+@keyframes glitch1 {
+  0%, 100% { transform: translate(1px, 0); }
+  12% { transform: translate(-4px, -1px); }
+  24% { transform: translate(3px, 1px); }
+  36% { transform: translate(-2px, 0); }
+  48% { transform: translate(4px, -1px); }
+  60% { transform: translate(-3px, 1px); }
+  72% { transform: translate(2px, 0); }
+  84% { transform: translate(-1px, -1px); }
+}
+
+@keyframes glitch2 {
+  0%, 100% { transform: translate(-1px, 0); }
+  12% { transform: translate(3px, 1px); }
+  24% { transform: translate(-4px, -1px); }
+  36% { transform: translate(4px, 0); }
+  48% { transform: translate(-2px, 1px); }
+  60% { transform: translate(2px, 0); }
+  72% { transform: translate(-3px, -1px); }
+  84% { transform: translate(1px, 1px); }
+}
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.014); }
+}
+
+@keyframes titleTilt {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-0.15deg) translateY(-1px); }
+}
+
+.subtitle {
+  margin: 18px auto 0;
+  max-width: 58ch;
+  font-size: clamp(0.98rem, 1.8vw, 1.06rem);
+  line-height: 1.9;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+.chips {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+  color: rgba(255,255,255,0.88);
+  font-size: 0.84rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.chip.red {
+  background: rgba(255,43,77,0.10);
+  border-color: rgba(255,43,77,0.22);
+  color: #ffe5eb;
+}
+
+.chip.gray {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.09);
+  color: #e8ebf0;
+}
+
+.signature {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 12;
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+  user-select: none;
+}
+
+.sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
+}
+
+.spark {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 10px rgba(255,43,77,0.68);
+  opacity: 0;
+  animation: spark 3.2s linear infinite;
+}
+
+@keyframes spark {
+  0% { transform: translate3d(0, 18vh, 0) scale(0.7); opacity: 0; }
+  8% { opacity: 0.9; }
+  50% { opacity: 0.38; }
+  100% { transform: translate3d(var(--dx), -120vh, 0) scale(1.12); opacity: 0; }
+}
+
+@media (max-width: 700px) {
+  .hero { padding: 12px; }
+  .subtitle { line-height: 1.76; }
+  .signature { left: 14px; bottom: 12px; }
+  .chips { gap: 8px; }
+  .chip { padding: 9px 12px; font-size: 0.76rem; }
+  .core { width: 84vw; }
+  .hero::before,
+  .hero::after { width: 14vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+  </style>
 </head>
-
-<body id="main-content">
-  <header>
-    <div class="brand">
-      <img src="https://siteatlascode.github.io/AtlasCode.png" alt="Atlas Code | ALS">
-      <div>
-        <div class="logo" AtlasGit="AtlasTitle">Loading...</div>
-        <div class="sub" AtlasGit="AtlasTitleMore">Loading...</div>
-      </div>
-    </div>
-
-    <button class="themeBtn" id="themeBtn" type="button">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 12.7A9 9 0 1 1 11.3 3 7 7 0 0 0 21 12.7"></path>
-      </svg>
-    </button>
-  </header>
-
-  <div class="wrap">
-    <div class="controls">
-      <input id="search" placeholder="جستجو">
-      <select id="filter">
-        <option value="all" AtlasGit="all">Loading...</option>
-        <option value="high" AtlasGit="high">Loading...</option>
-        <option value="medium" AtlasGit="medium">Loading...</option>
-        <option value="low" AtlasGit="low">Loading...</option>
-      </select>
-    </div>
-
-    <div class="grid" id="grid"></div>
-  </div>
-
-  <div class="modal" id="modal">
-    <div class="box">
-      <div class="close" id="close">✕</div>
-      <div id="modalContent"></div>
+<body>
+  <section class="stage" id="stage" aria-label="Cyber hero page">
+    <div class="core"></div>
+    <div class="hero-line top"></div>
+    <div class="hero-line bottom"></div>
+    <div class="scanline"></div>
+    <div class="noise"></div>
+    <div class="flicker"></div>
+    <div class="sparks" id="sparks"></div><div class="content">
+  <div class="hero">
+    <div class="frame"></div>
+    <a href="https://SiteAtlasCode.github.io"><h1 class="title glitch" id="title" data-text="ATLAS CODE">ATLAS <span>CODE</span></h1></a>
+    <p class="subtitle">
+      متن نمونه
+    </p>
+    <div class="chips">
+      <a href="https://SiteAtlasCode.github.io/tools" id="themeBtn" class="chip red">tools</a>
+      <a href="https://SiteAtlasCode.github.io/archive" class="chip gray">archive</a>
+      <a href="https://SiteAtlasCode.github.io/news" class="chip red">news</a>
     </div>
   </div>
+</div>
 
-  <div class="legal">
-    <strong AtlasGit="FooterTitle">Loading...</strong>
-    <div AtlasGit="FooterTexts">Loading...</div>
-    <div AtlasGit="FooterEnd">Loading...</div>
-  </div>
+<div class="signature">Atlas Code</div>
 
-<script src="./index.js"></script>
-<script src="https://siteatlascode.github.io/tools.js"></script>
-
+  </section>
+  
+  <script src="https://siteatlascode.github.io/tools.js"></script>
 </body>
-  </html>
+      </html>
