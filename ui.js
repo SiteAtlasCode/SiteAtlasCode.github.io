@@ -1,14 +1,27 @@
-(function () {
-      const sparks = document.getElementById('sparks');
-      const count = Math.min(12, Math.max(8, Math.floor(window.innerWidth / 125)));
-      for (let i = 0; i < count; i++) {
-        const s = document.createElement('span');
-        s.className = 'spark';
-        s.style.left = Math.random() * 100 + 'vw';
-        s.style.top = (82 + Math.random() * 20) + 'vh';
-        s.style.setProperty('--dx', ((Math.random() * 2 - 1) * 120) + 'px');
-        s.style.animationDelay = (Math.random() * 3.2) + 's';
-        s.style.opacity = (0.18 + Math.random() * 0.72).toFixed(2);
-        sparks.appendChild(s);
+document.addEventListener('DOMContentLoaded', function () {
+      var sparks = document.getElementById('sparks');
+      if (!sparks) return;
+
+      var count = 42;
+      var frag = document.createDocumentFragment();
+
+      for (var i = 0; i < count; i++) {
+        var spark = document.createElement('span');
+        spark.className = 'ax9-spark';
+
+        var left = Math.random() * 100;
+        var top = Math.random() * 100;
+        var size = 1 + Math.random() * 2;
+        var opacity = 0.25 + Math.random() * 0.75;
+
+        spark.style.left = left + '%';
+        spark.style.top = top + '%';
+        spark.style.width = size + 'px';
+        spark.style.height = size + 'px';
+        spark.style.opacity = opacity.toFixed(2);
+
+        frag.appendChild(spark);
       }
-    })();
+
+      sparks.appendChild(frag);
+    });
