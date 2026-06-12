@@ -3,34 +3,45 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!sparks) return;
 
   const particles = [];
-  const count = 200;
+  const count = 220;
 
-  for (let i = 0; i < count; i++) {
-    const el = document.createElement('span');
+  function createParticles() {
+    sparks.innerHTML = '';
+    particles.length = 0;
 
-    const size = 1 + Math.random() * 2;
+    const w = sparks.clientWidth;
+    const h = sparks.clientHeight;
 
-    el.className = 'ax9-spark';
-    el.style.position = 'absolute';
-    el.style.width = size + 'px';
-    el.style.height = size + 'px';
-    el.style.opacity = 0.2 + Math.random() * 0.8;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
 
-    const x = Math.random() * sparks.clientWidth;
-    const y = Math.random() * sparks.clientHeight;
+      const size = 2 + Math.random() * 3;
 
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
+      el.className = 'ax9-spark';
+      el.style.position = 'absolute';
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.borderRadius = '50%';
+      el.style.background = '#fff';
+      el.style.boxShadow = '0 0 3px #fff, 0 0 10px rgba(255,255,255,.7)';
+      el.style.opacity = 0.4 + Math.random() * 0.6;
 
-    particles.push({
-      el,
-      x,
-      y,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.15
-    });
+      const x = Math.random() * w;
+      const y = Math.random() * h;
 
-    sparks.appendChild(el);
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+
+      particles.push({
+        el,
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25
+      });
+
+      sparks.appendChild(el);
+    }
   }
 
   function animate() {
@@ -43,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (p.x < 0) p.x = w;
       if (p.x > w) p.x = 0;
-
       if (p.y < 0) p.y = h;
       if (p.y > h) p.y = 0;
 
@@ -54,5 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(animate);
   }
 
+  createParticles();
   animate();
+
+  window.addEventListener('resize', createParticles);
 });
