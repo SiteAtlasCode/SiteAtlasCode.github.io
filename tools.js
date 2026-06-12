@@ -148,15 +148,123 @@ const ensureStyle=()=>{
 @keyframes atlasGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,.18))}50%{filter:drop-shadow(0 0 18px rgba(255,255,255,.34))}}
 @keyframes atlasShimmer{0%{background-position:-220% 0}100%{background-position:220% 0}}
 @keyframes atlasShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-1px)}40%{transform:translateX(1px)}60%{transform:translateX(-1px)}80%{transform:translateX(1px)}}
-`;
+.atlas-sec-overlay{
+  isolation:isolate;
+  contain:layout style paint;
+  will-change:opacity,transform;
+  transform:translateZ(0);
+}
+
+#atlas-sec-loader,
+#atlas-sec-human,
+#atlas-sec-ban,
+#atlas-sec-audit{
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  background:
+  radial-gradient(circle at 50% 50%, rgba(255,43,77,.10), transparent 40%),
+  radial-gradient(circle at 20% 20%, rgba(255,255,255,.05), transparent 30%),
+  rgba(3,4,6,.88) !important;
+
+  font-family:inherit !important;
+  color:#fff !important;
+
+  will-change:opacity,transform;
+  transform:translateZ(0);
+}
+
+#atlas-sec-loader::before,
+#atlas-sec-human::before,
+#atlas-sec-ban::before,
+#atlas-sec-audit::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  background-image:
+  linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+
+  background-size:100% 6px,64px 100%;
+  opacity:.15;
+}
+
+#atlas-sec-loader > div,
+#atlas-sec-human > div,
+#atlas-sec-ban > div,
+#atlas-sec-audit > div{
+  position:relative;
+  z-index:2;
+
+  background:
+  linear-gradient(
+    180deg,
+    rgba(18,22,28,.95),
+    rgba(8,10,14,.96)
+  ) !important;
+
+  border:1px solid rgba(255,255,255,.08) !important;
+
+  box-shadow:
+  0 0 0 1px rgba(255,255,255,.03),
+  0 0 40px rgba(255,43,77,.08),
+  0 20px 80px rgba(0,0,0,.65) !important;
+}
+
+#atlas-sec-loader{
+  z-index:99990 !important;
+}
+
+#atlas-sec-human,
+#atlas-sec-ban,
+#atlas-sec-audit{
+  z-index:99991 !important;
+}
+
+#atlas-sec-loader *,
+#atlas-sec-human *,
+#atlas-sec-ban *,
+#atlas-sec-audit *{
+  font-family:inherit !important;
+}
+
+#atlas-sec-loader input,
+#atlas-sec-human input{
+  background:rgba(255,255,255,.96) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+
+#atlas-sec-loader button,
+#atlas-sec-human button,
+#atlas-sec-ban button{
+  transition:.25s ease;
+}
+
+#atlas-sec-loader button:hover,
+#atlas-sec-human button:hover,
+#atlas-sec-ban button:hover{
+  transform:translateY(-1px);
+}`;
   D.head.appendChild(st);
 };
 
 const overlay=(id,style)=>{
   let e=D.getElementById(id);
   if(e) return e;
+
   e=css("div",style,id);
-  D.documentElement.appendChild(e);
+
+  const root=
+    D.getElementById("stage") ||
+    D.querySelector(".stage") ||
+    D.body;
+
+  e.classList.add("atlas-sec-overlay");
+
+  root.appendChild(e);
+
   return e;
 };
 const clearOverlays=()=>["atlas-sec-loader","atlas-sec-human","atlas-sec-ban","atlas-sec-audit"].forEach(rm);
