@@ -148,15 +148,13 @@
       mask-image: radial-gradient(circle at center, #000 0 56%, transparent 83%);
     }
 
-    .ax9-spark{
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 0 10px rgba(255,43,77,0.68);
-      opacity: 0.9;
-    }
+.ax9-sparks{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  pointer-events:none;
+  overflow:hidden;
+}
 
     .ax9-content{
       position: relative;
